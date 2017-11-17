@@ -1,0 +1,59 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/id_viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@drawable/tab_background"
+        android:orientation="horizontal"
+        android:paddingBottom="3dp"
+        android:paddingTop="1dp">
+
+        <com.hua.media.widget.ShadeView
+            android:id="@+id/local_video_sv"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:padding="5dp"
+            app:icon="@drawable/ic_tab_video"
+            app:text="本地视频" />
+
+        <com.hua.media.widget.ShadeView
+            android:id="@+id/local_audio_sv"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:padding="5dp"
+            app:icon="@drawable/ic_tab_audio"
+            app:text="本地音频" />
+
+        <com.hua.media.widget.ShadeView
+            android:id="@+id/network_video_sv"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:padding="5dp"
+            app:icon="@drawable/ic_tab_netvideo"
+            app:text="网络视频" />
+
+        <com.hua.media.widget.ShadeView
+            android:id="@+id/network_music_sv"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:padding="5dp"
+            app:icon="@drawable/ic_tab_netaudio"
+            app:text="网络音乐" />
+
+    </LinearLayout>
+
+</LinearLayout>

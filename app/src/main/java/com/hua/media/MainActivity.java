@@ -3,17 +3,20 @@ package com.hua.media;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.os.Bundle;
 import android.view.View;
 
 import com.hua.media.base.BaseActivity;
+import com.hua.media.localaudio.LocalAudioFragment;
+import com.hua.media.localvideo.LocalVideoFragment;
+import com.hua.media.networkaudio.NetWorkAudioFragment;
+import com.hua.media.networkvideo.NetWorkVideoFragment;
 import com.hua.media.widget.ShadeView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends BaseActivity implements ViewPager.OnPageChangeListener, View.OnClickListener {
-    private List<TabFragment> tabFragments;
+    private List<Fragment> baseFragments = new ArrayList<>();
     private List<ShadeView> tabIndicators;
     private ViewPager viewPager;
 
@@ -44,25 +47,39 @@ public class MainActivity extends BaseActivity implements ViewPager.OnPageChange
 
     @Override
     protected void init() {
-        tabFragments = new ArrayList<>();
+        baseFragments.clear();
         tabIndicators = new ArrayList<>();
-        String[] titles = new String[]{"本地视频", "本地音频", "网络视频", "网络音乐"};
+        String[] titles = new String[]{"本地视频", "本地音频", "网络视频", "网络音频"};
         for (String title : titles) {
-            TabFragment tabFragment = new TabFragment();
-            Bundle bundle = new Bundle();
-            bundle.putString("Title", title);
-            tabFragment.setArguments(bundle);
-            tabFragments.add(tabFragment);
+//            TabFragment tabFragment = new TabFragment();
+//            Bundle bundle = new Bundle();
+//            bundle.putString("Title", title);
+//            tabFragment.setArguments(bundle);
+//            tabFragments.add(tabFragment);
+            switch (title){
+                case "本地视频":
+                    baseFragments.add(new LocalVideoFragment());
+                    break;
+                case "本地音频":
+                    baseFragments.add(new LocalAudioFragment());
+                    break;
+                case "网络视频":
+                    baseFragments.add(new NetWorkVideoFragment());
+                    break;
+                case "网络音频":
+                    baseFragments.add(new NetWorkAudioFragment());
+                    break;
+            }
         }
         adapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public int getCount() {
-                return tabFragments.size();
+                return baseFragments.size();
             }
 
             @Override
             public Fragment getItem(int arg0) {
-                return tabFragments.get(arg0);
+                return baseFragments.get(arg0);
             }
         };
         viewPager.setAdapter(adapter);

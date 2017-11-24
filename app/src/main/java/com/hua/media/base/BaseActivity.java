@@ -3,7 +3,6 @@ package com.hua.media.base;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -11,16 +10,13 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 
+import com.hua.librarytools.utils.UIToast;
 import com.hua.media.R;
 import com.hua.media.utils.PermissionUtils;
 import com.hua.media.utils.ProviderUtil;
-import com.hua.media.utils.UIToast;
 
-import java.io.File;
 import java.util.ArrayList;
 
 /**

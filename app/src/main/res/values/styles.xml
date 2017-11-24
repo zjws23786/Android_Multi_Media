@@ -9,9 +9,16 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AnimationToast">
-        <item name="android:windowEnterAnimation">@anim/toast_fade_enter</item>
-        <item name="android:windowExitAnimation">@anim/toast_fade_exit</item>
+    <style name="ListItemSubTitleStyle" parent="@style/TextAppearance.AppCompat.Caption">
+        <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:lineSpacingExtra">0.0px</item>
     </style>
 
+    <style name="ListItemTitleStyle" parent="@style/TextAppearance.AppCompat.Body1">
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
+    </style>
 </resources>

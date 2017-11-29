@@ -11,4 +11,10 @@ public class Constant {
      */
     public static final String PLAY_MODE_PRE = "play_mode_pre";
     public static final String PLAY_MODE_KEY = "play_mode_key";
+
+    /**
+     * 本地音频数据集
+     */
+    public static final String LOCAL_AUDIO_PRE = "local_audio_pre";
+    public static final String LOCAL_AUDIO_KEY = "local_audio_key";
 }

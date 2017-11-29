@@ -20,6 +20,15 @@ import java.util.List;
  */
 
 public class LocalAudioAdapter extends BaseAdapter {
+    public interface PopupMenuOnClick{
+        void deleteSongClick(View view, int position);
+    }
+    private PopupMenuOnClick menuOnClick;
+
+    public void setMenuOnClick(PopupMenuOnClick menuOnClick) {
+        this.menuOnClick = menuOnClick;
+    }
+
     private Context mContext;
     private List<AudioBean> lists;
 
@@ -47,7 +56,7 @@ public class LocalAudioAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
+    public View getView(final int position, View view, ViewGroup viewGroup) {
         ViewHolder holder = null;
         if (view == null){
             holder = new ViewHolder();
@@ -58,15 +67,24 @@ public class LocalAudioAdapter extends BaseAdapter {
             holder.displayNameTv = view.findViewById(R.id.display_name_tv);
             holder.artistNameTv = view.findViewById(R.id.artist_name_tv);
             holder.albumTv = view.findViewById(R.id.album_tv);
+            holder.popupMenu = view.findViewById(R.id.popup_menu);
             view.setTag(holder);
         }else{
             holder = (ViewHolder) view.getTag();
         }
-        AudioBean audioBean = lists.get(i);
+        AudioBean audioBean = lists.get(position);
 //        holder.artistPhotoIv.setImageResource();
         holder.displayNameTv.setText(audioBean.getTitle());
         holder.artistNameTv.setText(audioBean.getArtist());
         holder.albumTv.setText(audioBean.getAlbum());
+        holder.popupMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (menuOnClick != null){
+                    menuOnClick.deleteSongClick(view,position);
+                }
+            }
+        });
         return view;
     }
 
@@ -75,6 +93,7 @@ public class LocalAudioAdapter extends BaseAdapter {
         TextView displayNameTv;
         TextView artistNameTv;
         TextView albumTv;
+        ImageView popupMenu;
     }
 
 

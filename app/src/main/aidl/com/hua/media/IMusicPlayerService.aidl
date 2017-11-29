@@ -4,11 +4,18 @@ package com.hua.media;
 // Declare any non-default types here with import statements
 
 interface IMusicPlayerService {
- /**
+
+    /**
      * 根据位置打开对应的音频文件，并且播放
      * @param position
      */
     void openAudio(int position);
+
+    /**
+     * 根据位置打开对应的音频文件，并且播放
+     * @param position
+     */
+    void fromListOpenAudio(int position);
 
     /**
      * 播放音乐

@@ -1,10 +1,12 @@
 package com.hua.media.bean;
 
+import java.io.Serializable;
+
 /**
  * Created by hjz on 2017/11/20 0020.
  */
 
-public class AudioBean {
+public class AudioBean implements Serializable{
     private String title;
 
     private String name;
@@ -22,6 +24,16 @@ public class AudioBean {
     private String imageUrl;
 
     private String album;
+
+    private long id;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public String getAlbum() {
         return album;

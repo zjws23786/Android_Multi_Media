@@ -10,28 +10,24 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
-import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.Transformation;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.hua.librarytools.utils.DensityUtil;
+import com.hua.librarytools.utils.NetworkUtils;
+import com.hua.librarytools.utils.PreferencesUtils;
+import com.hua.librarytools.utils.UIToast;
 import com.hua.media.IMusicPlayerService;
 import com.hua.media.R;
 import com.hua.media.bean.AudioBean;
 import com.hua.media.base.BaseActivity;
 import com.hua.media.bean.KuGouRawLyric;
 import com.hua.media.bean.KuGouSearchLyricResult;
-import com.hua.media.bean.MetaChangedEvent;
+import com.hua.media.common.Constant;
 import com.hua.media.network.AudioApi;
-import com.hua.media.network.RxBus;
 import com.hua.media.service.MusicPlayerService;
-import com.hua.media.utils.ColorUtil;
 import com.hua.media.utils.LyricUtil;
 import com.hua.media.widget.LyricView;
 
@@ -42,12 +38,7 @@ import java.io.File;
 import java.util.Formatter;
 import java.util.Locale;
 
-import rx.Observable;
 import rx.Subscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 
 /**
  * 音乐播放器
@@ -56,6 +47,7 @@ public class AudioPlayerActivity extends BaseActivity implements View.OnClickLis
     private TextView mDisplayNameTv;
     private TextView mArtistNameTv;
     private SeekBar mSeekBar;
+    private ImageView mPlayModeIv;
     private ImageView mLastOneIv;
     private ImageView mPlayPauseIv;
     private ImageView mNextOneIv;
@@ -64,7 +56,7 @@ public class AudioPlayerActivity extends BaseActivity implements View.OnClickLis
     private LyricView mLyricView;
 
     private int position;
-    private boolean isFirstIn = true;
+    private boolean isLoadLyric = true;
     /**
      * true:从状态栏进入的，不需要重新播放
      * false:从播放列表进入的
@@ -142,7 +134,7 @@ public class AudioPlayerActivity extends BaseActivity implements View.OnClickLis
                 if (service != null){
                     //从列表页面进来
                     if (!notification){
-                        service.openAudio(position);
+                        service.fromListOpenAudio(position);
                     }
                     //从状态栏点击进来
                     else{
@@ -211,6 +203,13 @@ public class AudioPlayerActivity extends BaseActivity implements View.OnClickLis
             if (TextUtils.isEmpty(title) || TextUtils.isEmpty(artist)) {
                 return;
             }
+
+            //原则 ： 先加载本地，本地没有在去请求网络
+            if (isLocalLyric()){
+                localLyric();
+                return;
+            }
+
             Subscriber<KuGouSearchLyricResult> subscriber = new Subscriber<KuGouSearchLyricResult>() {
                 @Override
                 public void onCompleted() {
@@ -219,7 +218,8 @@ public class AudioPlayerActivity extends BaseActivity implements View.OnClickLis
 
                 @Override
                 public void onError(Throwable e) {
-
+                    localLyric();
+//                    UIToast.showBaseToast(AudioPlayerActivity.this,e.getMessage(),R.style.AnimationToast);
                 }
 
                 @Override
@@ -228,16 +228,54 @@ public class AudioPlayerActivity extends BaseActivity implements View.OnClickLis
                             && kuGouSearchLyricResult.candidates != null
                             && kuGouSearchLyricResult.candidates.size() != 0) {
                         KuGouSearchLyricResult.Candidates candidates = kuGouSearchLyricResult.candidates.get(0);
-//                        return mKuGouApiService.getRawLyric(candidates.id, candidates.accesskey);
                         getRawLyric(candidates.id, candidates.accesskey);
+                    }else{
+                        localLyric();
+
                     }
                 }
             };
             AudioApi.searchLyric(subscriber,title, artist, duration);
+
         } catch (RemoteException e) {
             e.printStackTrace();
         }
 
+    }
+
+    private boolean isLocalLyric() {
+        try {
+            String lrcRootPath = android.os.Environment.getExternalStorageDirectory().toString()
+                    + "/Listener/lyric/";
+            File file = new File(lrcRootPath + service.getTitle() + " - " + service.getArtist() + ".lrc");
+            if (!file.exists() || file == null) {
+                return false;
+            } else {
+                return true;
+            }
+        }catch (RemoteException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    //读取本地歌词
+    private void localLyric() {
+        try {
+            String path = service.getAudioPath();//得到歌曲的绝对路径
+            String lrcRootPath = android.os.Environment.getExternalStorageDirectory().toString()
+                    + "/Listener/lyric/";
+            File file = new File(lrcRootPath + service.getTitle() + " - " + service.getArtist() + ".lrc");
+            mLyricView.setHintColor(Color.BLACK);
+            if (!file.exists() || file == null) {
+                mLyricView.reset("暂无歌词");
+            } else {
+                mLyricView.setLyricFile(file, "UTF-8");
+                handler.sendEmptyMessage(SHOW_LYRIC);
+            }
+        }catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 
     private void getRawLyric(String id, String accesskey) {
@@ -289,6 +327,7 @@ public class AudioPlayerActivity extends BaseActivity implements View.OnClickLis
 
     @Subscribe
     public void onEventMainThread(AudioBean audioBean){
+        isLoadLyric = true;
         fillData();
     }
 
@@ -297,6 +336,7 @@ public class AudioPlayerActivity extends BaseActivity implements View.OnClickLis
         mDisplayNameTv = (TextView) findViewById(R.id.display_name_tv);
         mArtistNameTv = (TextView) findViewById(R.id.artist_name_tv);
         mSeekBar = (SeekBar) findViewById(R.id.audio_seek_bar);
+        mPlayModeIv = (ImageView) findViewById(R.id.play_mode_iv);
         mLastOneIv = (ImageView) findViewById(R.id.last_one_iv);
         mPlayPauseIv = (ImageView) findViewById(R.id.play_pause_iv);
         mNextOneIv = (ImageView) findViewById(R.id.next_one_iv);
@@ -335,6 +375,7 @@ public class AudioPlayerActivity extends BaseActivity implements View.OnClickLis
         mLastOneIv.setOnClickListener(this);
         mPlayPauseIv.setOnClickListener(this);
         mNextOneIv.setOnClickListener(this);
+        mPlayModeIv.setOnClickListener(this);
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -367,6 +408,8 @@ public class AudioPlayerActivity extends BaseActivity implements View.OnClickLis
             position = getIntent().getIntExtra("position",0);
         }
         bindAndStartService();
+        int playMode = PreferencesUtils.getPreference(this, Constant.PLAY_MODE_PRE,Constant.PLAY_MODE_KEY,MusicPlayerService.REPEAT_ALL);
+        setPlayModeImg(playMode);
     }
 
     private void bindAndStartService() {
@@ -378,14 +421,14 @@ public class AudioPlayerActivity extends BaseActivity implements View.OnClickLis
     //填充
     private void fillData() {
         try {
-            if (isFirstIn){
+            if (isLoadLyric){
                 if (service.getDuration() > 1){
-                    isFirstIn = false;
+                    isLoadLyric = false;
                     //服务绑定成功了  就需加载歌词
                     onPreparedLyric();
                 }
             }
-            mDisplayNameTv.setText(service.getName());
+            mDisplayNameTv.setText(service.getTitle());
             mArtistNameTv.setText(service.getArtist());
             mSeekBar.setMax(service.getDuration());
             handler.sendEmptyMessage(PROGRESS);
@@ -399,10 +442,13 @@ public class AudioPlayerActivity extends BaseActivity implements View.OnClickLis
         if (service != null){
             try{
                 switch (view.getId()){
-                    case R.id.last_one_iv:
+                    case R.id.play_mode_iv:  //播放模式
+                        setPlayMode();
+                        break;
+                    case R.id.last_one_iv:  //上一首
                         service.pre();
                         break;
-                    case R.id.play_pause_iv:
+                    case R.id.play_pause_iv:  //播放暂停
                         if(service.isPlaying()){
                             //暂停
                             service.pause();
@@ -415,7 +461,7 @@ public class AudioPlayerActivity extends BaseActivity implements View.OnClickLis
                             mPlayPauseIv.setBackgroundResource(R.drawable.audio_pause_selector_btn);
                         }
                         break;
-                    case R.id.next_one_iv:
+                    case R.id.next_one_iv:  //下一首
                         service.next();
                         break;
                 }
@@ -424,6 +470,43 @@ public class AudioPlayerActivity extends BaseActivity implements View.OnClickLis
             }
         }
 
+    }
+
+    private void setPlayMode() {
+        try {
+            int playmode = service.getPlayMode();
+            if(playmode==MusicPlayerService.REPEAT_SINGLE){ //单曲切换成随机
+                playmode = MusicPlayerService.REPEAT_RANDOM;
+            }else if(playmode == MusicPlayerService.REPEAT_ALL){ //循环播放切换成单曲
+                playmode = MusicPlayerService.REPEAT_SINGLE;
+            }else if(playmode ==MusicPlayerService.REPEAT_RANDOM){ //随机切换成循环播放
+                playmode = MusicPlayerService.REPEAT_ALL;
+            }else{
+                playmode = MusicPlayerService.REPEAT_ALL;
+            }
+            //保持
+            service.setPlayMode(playmode);
+
+            //设置图片
+            setPlayModeImg(playmode);
+
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setPlayModeImg(int playmode) {
+        switch (playmode){
+            case MusicPlayerService.REPEAT_SINGLE:  //单曲
+                mPlayModeIv.setImageResource(R.drawable.ic_one_shot);
+                break;
+            case MusicPlayerService.REPEAT_ALL: //全部循环
+                mPlayModeIv.setImageResource(R.drawable.ic_list_repeat);
+                break;
+            case MusicPlayerService.REPEAT_RANDOM: //随机播放
+                mPlayModeIv.setImageResource(R.drawable.ic_shuffle_white_36dp);
+                break;
+        }
     }
 
     public String stringForTime(int timeMs) {

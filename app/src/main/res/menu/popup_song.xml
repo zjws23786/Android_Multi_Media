@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:visible="false"
+        android:id="@+id/popup_song_play_next"
+        android:title="下一首播放" />
+
+    <item
+        android:visible="false"
+        android:id="@+id/popup_song_addto_queue"
+        android:title="添加到播放队列" />
+
+    <item
+        android:visible="false"
+        android:id="@+id/popup_song_addto_playlist"
+        android:title="添加到歌单" />
+
+    <item
+        android:visible="false"
+        android:id="@+id/popup_song_goto_album"
+        android:title="查看专辑" />
+
+    <item
+        android:visible="false"
+        android:id="@+id/popup_song_goto_artist"
+        android:title="查看歌手" />
+
+    <item
+        android:id="@+id/popup_song_delete"
+        android:title="删除" />
+
+</menu>

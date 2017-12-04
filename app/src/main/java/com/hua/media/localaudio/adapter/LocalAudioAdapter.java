@@ -63,11 +63,11 @@ public class LocalAudioAdapter extends BaseAdapter {
             view = LayoutInflater.from(mContext).inflate(R.layout.adapter_local_auido,null);
             AbsListView.LayoutParams layoutParams = new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, DensityUtil.dip2px(mContext,72));
             view.setLayoutParams(layoutParams);
-            holder.artistPhotoIv = view.findViewById(R.id.artist_photo_iv);
-            holder.displayNameTv = view.findViewById(R.id.display_name_tv);
-            holder.artistNameTv = view.findViewById(R.id.artist_name_tv);
-            holder.albumTv = view.findViewById(R.id.album_tv);
-            holder.popupMenu = view.findViewById(R.id.popup_menu);
+            holder.artistPhotoIv = (ImageView) view.findViewById(R.id.artist_photo_iv);
+            holder.displayNameTv = (TextView) view.findViewById(R.id.display_name_tv);
+            holder.artistNameTv = (TextView) view.findViewById(R.id.artist_name_tv);
+            holder.albumTv = (TextView) view.findViewById(R.id.album_tv);
+            holder.popupMenu = (ImageView) view.findViewById(R.id.popup_menu);
             view.setTag(holder);
         }else{
             holder = (ViewHolder) view.getTag();

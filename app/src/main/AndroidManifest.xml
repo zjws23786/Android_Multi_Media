@@ -33,8 +33,12 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <activity android:name=".localaudio.AudioPlayerActivity"/>
-        <service android:name=".service.MusicPlayerService"/>
+        <activity android:name=".localaudio.AudioPlayerActivity" />
+
+        <service android:name=".service.MusicPlayerService" />
+
+        <activity android:name=".localvideo.SystemVideoPlayerActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"/>
     </application>
 
 </manifest>

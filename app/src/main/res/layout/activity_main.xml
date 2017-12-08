@@ -10,10 +10,11 @@
         android:gravity="center"
         android:background="#3F51B5">
 
-        <TextView
+        <Button
+            android:id="@+id/search_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="头部布局"
+            android:text="搜索功能"
             android:textColor="#fff"/>
 
     </LinearLayout>

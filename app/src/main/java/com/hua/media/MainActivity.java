@@ -1,15 +1,18 @@
 package com.hua.media;
 
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.widget.Button;
 
 import com.hua.media.base.BaseActivity;
 import com.hua.media.localaudio.LocalAudioFragment;
 import com.hua.media.localvideo.LocalVideoFragment;
 import com.hua.media.networkaudio.NetWorkAudioFragment;
 import com.hua.media.networkvideo.NetWorkVideoFragment;
+import com.hua.media.search.SearchActivity;
 import com.hua.media.widget.ShadeView;
 
 import java.util.ArrayList;
@@ -19,6 +22,7 @@ public class MainActivity extends BaseActivity implements ViewPager.OnPageChange
     private List<Fragment> baseFragments = new ArrayList<>();
     private List<ShadeView> tabIndicators;
     private ViewPager viewPager;
+    private Button mSearchBtn;
 
     private FragmentPagerAdapter adapter;
     private ShadeView localVideoSv;
@@ -38,11 +42,13 @@ public class MainActivity extends BaseActivity implements ViewPager.OnPageChange
         localAudioSv = (ShadeView) findViewById(R.id.local_audio_sv);
         networkVideoSv = (ShadeView) findViewById(R.id.network_video_sv);
         networkMusicSv = (ShadeView) findViewById(R.id.network_music_sv);
+        mSearchBtn = (Button) findViewById(R.id.search_btn);
     }
 
     @Override
     protected void setListener() {
         viewPager.addOnPageChangeListener(this);
+        mSearchBtn.setOnClickListener(this);
     }
 
     @Override
@@ -118,6 +124,10 @@ public class MainActivity extends BaseActivity implements ViewPager.OnPageChange
             case R.id.network_music_sv:
                 tabIndicators.get(3).setIconAlpha(1.0f);
                 viewPager.setCurrentItem(3, false);
+                break;
+            case R.id.search_btn:  //搜索功能
+                Intent intent = new Intent(this, SearchActivity.class);
+                startActivity(intent);
                 break;
         }
     }

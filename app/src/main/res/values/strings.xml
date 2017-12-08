@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">多媒体</string>
+    <string name="app_name">多媒体汇聚</string>
+    <!-- 请替换成在语音云官网申请的appid -->
+    <string name="app_id">5a28ad32</string>
 </resources>

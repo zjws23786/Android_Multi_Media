@@ -1,12 +1,12 @@
-package com.hua.media.localvideo;
+package com.hua.media.kmplayer;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -16,7 +16,6 @@ import android.os.Message;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -31,31 +30,24 @@ import com.hua.librarytools.utils.DensityUtil;
 import com.hua.librarytools.utils.UIToast;
 import com.hua.media.R;
 import com.hua.media.base.BaseActivity;
-import com.hua.media.bean.VideoBean;
-import com.hua.media.common.Env;
 import com.hua.media.utils.DateTools;
-import com.hua.media.utils.HardwareInfoUtils;
 import com.hua.media.utils.NetSpeedUtils;
-import com.hua.media.vitamio.VitamioVideoViewBufferActivity;
 import com.hua.media.widget.FullVideoView;
-
 import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-/**
- * @author hjz
- *调用系统VideoView
- */
-public class SystemVideoPlayerActivity extends BaseActivity implements View.OnClickListener {
-    private RelativeLayout mVideoLayout;  //视频区域布局
+public class KmPlayerActivity extends BaseActivity implements View.OnClickListener {
+    private TextView mVideoPathTv; //视频路径
+    private ImageView mBatteryIv; //电量显示
+    private TextView mSystemTimeTv; //系统时间
     private FullVideoView mVideoView; //视频的View
     private LinearLayout topLayout; //视频标题的视图
     private LinearLayout bottomLayout; //视频下面的操作栏
     private TextView mCurrentTimeTv;  //当前视频播放时间
     private TextView mTotalTimeTv;  //视频总时长
     private SeekBar mPosSeekBar;  //进度条
-    private SeekBar mVolumeSeekBar;  //音量进度条
     private ImageView mPlayAndPause;  //播放或暂停按钮
-    private ImageView mChangeFullScreen;  //屏幕切换按钮
     /*亮度、音量、快进或快退  布局内容*/
     private RelativeLayout volumeLayout;  //音量
     private ImageView playerVolumeIv;   //音量的图标
@@ -69,14 +61,12 @@ public class SystemVideoPlayerActivity extends BaseActivity implements View.OnCl
     private TextView bufferNetSpeedTv; //当前网速
     private ImageView swichPlayerIv;  //切换播放模式
 
-
     private int playerWidth; //视频窗口宽
     private int playerHeight; //视频窗口高
     private AudioManager mAudioManager; //音频管理器
     private static final float STEP_VOLUME = 2f;// 协调音量滑动时的步长，避免每次滑动都改变，导致改变过快
     private int currentVolume; //当前音量值
     private int maxVolume;  //最大音量值
-    private boolean isFullScreen = false; //是否全屏【true表示全屏】
     private boolean isAdjust = false; //触摸屏幕后是否到达调整手机音量或亮度
     private int threshold = 54; //触摸屏幕到达调整的最小临界值
     private int startX;  //手指视频View的X轴位置
@@ -102,25 +92,26 @@ public class SystemVideoPlayerActivity extends BaseActivity implements View.OnCl
     private static final int SHOW_SPEED = 2;
 
     private NetSpeedUtils netSpeedUtils;
-    private String videoPath;
+    private Uri videoUri;
+    /**
+     * 监听电量变化的广播
+     */
+    private MyBatteryReceiver batteryReceiver;
 
     @Override
     protected void setLayout() {
-        setContentView(R.layout.activity_system_video_player);
+        setContentView(R.layout.activity_km_player);
     }
 
     @Override
     protected void findViewById() {
-        mVideoLayout = (RelativeLayout) findViewById(R.id.videoLayout);
         mVideoView = (FullVideoView) findViewById(R.id.video_view);
         topLayout = (LinearLayout) findViewById(R.id.top_layout);
         bottomLayout = (LinearLayout) findViewById(R.id.bottom_layout);
         mCurrentTimeTv = (TextView) findViewById(R.id.current_time_tv);
         mTotalTimeTv = (TextView) findViewById(R.id.total_time_tv);
         mPosSeekBar = (SeekBar) findViewById(R.id.pos_seekBar);
-        mVolumeSeekBar = (SeekBar) findViewById(R.id.volume_seek);
         mPlayAndPause = (ImageView) findViewById(R.id.pause_img);
-        mChangeFullScreen = (ImageView) findViewById(R.id.change_screen);
 
         volumeLayout = (RelativeLayout) findViewById(R.id.volume_layout);
         playerVolumeIv = (ImageView) findViewById(R.id.player_volume_iv);
@@ -133,27 +124,25 @@ public class SystemVideoPlayerActivity extends BaseActivity implements View.OnCl
         progressbarLayout = (LinearLayout) findViewById(R.id.progressbar_layout);
         bufferNetSpeedTv = (TextView) findViewById(R.id.buffer_net_speed_tv);
         swichPlayerIv = (ImageView) findViewById(R.id.swich_player_iv);
+        mVideoPathTv = (TextView) findViewById(R.id.video_path_tv);
+        mBatteryIv = (ImageView) findViewById(R.id.battery_iv);
+        mSystemTimeTv = (TextView) findViewById(R.id.system_time_tv);
     }
 
     @Override
     protected void setListener() {
         //播放或暂停
         mPlayAndPause.setOnClickListener(this);
-        //屏幕改变按钮
-        mChangeFullScreen.setOnClickListener(this);
         //切换了视频播放模式
         swichPlayerIv.setOnClickListener(this);
 
         //接收对SeekBar进度级别的更改的通知。 还提供了用户什么时候在SeekBar内启动和停止触摸手势的通知。
         mPosSeekBar.setOnSeekBarChangeListener(new MyPosOnSeekBarChangeListener());
-
-        //音量进度条
-        mVolumeSeekBar.setOnSeekBarChangeListener(new MyVolumeOnSeekBarChangeListener());
     }
 
     @Override
-    public void onClick(View view) {
-        switch (view.getId()){
+    public void onClick(View v) {
+        switch (v.getId()){
             case R.id.pause_img:
                 if (mVideoView.isPlaying()){
                     mPlayAndPause.setImageResource(R.drawable.video_start_style);
@@ -164,15 +153,6 @@ public class SystemVideoPlayerActivity extends BaseActivity implements View.OnCl
                     mPlayAndPause.setImageResource(R.drawable.video_stop_style);
                     mVideoView.start();
                     mHandler.sendEmptyMessage(UPDATE_UI);
-                }
-                break;
-            case R.id.change_screen:
-                if (isFullScreen){
-                    //屏幕竖屏
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                }else{
-                    //屏幕横屏
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                 }
                 break;
             case R.id.swich_player_iv:
@@ -206,10 +186,9 @@ public class SystemVideoPlayerActivity extends BaseActivity implements View.OnCl
         }
 
 
-        Intent intent = new Intent(this,VitamioVideoViewBufferActivity.class);
-        if (videoPath != null){
-//            intent.setData(Uri.parse(videoPath));
-            intent.putExtra("videoPath",videoPath);
+        Intent intent = new Intent(this,KmVitamioPlayerActivity.class);
+        if (videoUri != null){
+            intent.setData(videoUri);
         }
         startActivity(intent);
         finish();//关闭页面
@@ -238,30 +217,74 @@ public class SystemVideoPlayerActivity extends BaseActivity implements View.OnCl
         maxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         // 获取当前值
         currentVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        mVolumeSeekBar.setMax(maxVolume);
-        mVolumeSeekBar.setProgress(currentVolume);
 
         playVideo();
+
+        //注册电量广播
+        batteryReceiver = new MyBatteryReceiver();
+        IntentFilter intentFiler = new IntentFilter();
+        //当电量变化的时候发这个广播
+        intentFiler.addAction(Intent.ACTION_BATTERY_CHANGED);
+        registerReceiver(batteryReceiver, intentFiler);
+
+        //设置系统时间
+        mSystemTimeTv.setText(getSysteTime());
+
         //开始更新网络速度
         mHandler.sendEmptyMessage(SHOW_SPEED);
     }
 
-    private void playVideo() {
-        VideoBean videoBean = (VideoBean) getIntent().getSerializableExtra("video");
-        if (videoBean == null){
-            videoPath = getIntent().getStringExtra("videoPath");
+    class MyBatteryReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //0~100;
+            int level = intent.getIntExtra("level", 0);
+            //主线程
+            setBattery(level);
         }
-        //本地视频播放
-//        String videoPath = videoBean.getData();
-//        Log.v("hjz","videoPath="+videoPath);
-//        if (videoPath.isEmpty()){
-//            videoPath = "http://cntv.vod.cdn.myqcloud.com/flash/mp4video59/TMS/2017/03/29/ee1ec61692974e3b8c2bea762acec1f8_h264418000nero_aac32-4.mp4";
-//        }
-//        videoPath = "http://vfx.mtime.cn/Video/2017/11/13/mp4/171113105102992015.mp4";
-//        videoPath = "http://gslb.miaopai.com/stream/oxX3t3Vm5XPHKUeTS-zbXA__.mp4";
-        videoPath = "http://cntv.hls.cdn.myqcloud.com/asp/hls/main/0303000a/3/default/5bf85dc06ecc4c39b55f36551e741fea/main.m3u8?maxbr=2048";
+    }
+
+    /**
+     * 设置手机电量
+     * @param level
+     */
+    private void setBattery(int level) {
+        if (level <= 0) {
+            mBatteryIv.setImageResource(R.drawable.ic_battery_0);
+        } else if (level <= 10) {
+            mBatteryIv.setImageResource(R.drawable.ic_battery_10);
+        } else if (level <= 20) {
+            mBatteryIv.setImageResource(R.drawable.ic_battery_20);
+        } else if (level <= 40) {
+            mBatteryIv.setImageResource(R.drawable.ic_battery_40);
+        } else if (level <= 60) {
+            mBatteryIv.setImageResource(R.drawable.ic_battery_60);
+        } else if (level <= 80) {
+            mBatteryIv.setImageResource(R.drawable.ic_battery_80);
+        } else if (level <= 100) {
+            mBatteryIv.setImageResource(R.drawable.ic_battery_100);
+        } else {
+            mBatteryIv.setImageResource(R.drawable.ic_battery_100);
+        }
+    }
+
+    /**
+     * 得到系统时间
+     *
+     * @return
+     */
+    public String getSysteTime() {
+        SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+        return format.format(new Date());
+    }
+
+    private void playVideo() {
+        //得到播放地址  文件夹，图片浏览器，QQ空间
+        videoUri = getIntent().getData();
+        mVideoPathTv.setText(videoUri.toString());
         //网络视频播放
-        mVideoView.setVideoURI(Uri.parse(videoPath));
+        mVideoView.setVideoURI(videoUri);
         mVideoView.requestFocus();
 
         //准备好的监听
@@ -410,7 +433,6 @@ public class SystemVideoPlayerActivity extends BaseActivity implements View.OnCl
         }
         int percentage = (currentVolume * 100) / maxVolume;
         volumePercentageTv.setText(percentage + "%");
-        mVolumeSeekBar.setProgress(currentVolume);
         mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,currentVolume, 0);
 
     }
@@ -454,56 +476,6 @@ public class SystemVideoPlayerActivity extends BaseActivity implements View.OnCl
         progressTimeTv.setText(DateTools.getTimeStr(currentTime) + "/" + DateTools.getTimeStr(videoTotalTime));
     }
 
-    /**
-     * 设备配置更改时由系统调用
-     * @param newConfig
-     */
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        HardwareInfoUtils.initDisplayMetrics();
-        RelativeLayout.LayoutParams progressbarLayoutParams = null;
-        //当横屏时
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
-            Log.v("hjz","横屏");
-            Log.v("hjz","height="+Env.screenHeight);
-            progressbarLayoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    Env.screenHeight - DensityUtil.dip2px(this,50));
-            progressbarLayout.setLayoutParams(progressbarLayoutParams);
-            setVideoViewScale(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT);
-            mVolumeSeekBar.setVisibility(View.VISIBLE);
-            isFullScreen = true;
-
-            //强制移除半屏状态
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }else{
-            Log.v("hjz","竖屏");
-            progressbarLayoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    DensityUtil.dip2px(this,190));
-            progressbarLayout.setLayoutParams(progressbarLayoutParams);
-            setVideoViewScale(ViewGroup.LayoutParams.MATCH_PARENT , DensityUtil.dip2px(this , 240f));
-            mVolumeSeekBar.setVisibility(View.GONE);
-            isFullScreen = false;
-
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-        }
-        Log.v("hjz","******************");
-    }
-
-    private void setVideoViewScale(int width , int height){
-        ViewGroup.LayoutParams layoutParams = mVideoView.getLayoutParams();
-        layoutParams.width = width;
-        layoutParams.height = height;
-        mVideoView.setLayoutParams(layoutParams);
-
-        ViewGroup.LayoutParams layoutParams1 = mVideoLayout.getLayoutParams();
-        layoutParams1.width = width;
-        layoutParams1.height = height;
-        mVideoLayout.setLayoutParams(layoutParams1);
-    }
-
     private void updateTextViewWithTimeFormat(TextView tv, int milliSecond) {
         int second = milliSecond/1000;
         int hh = second/3600;
@@ -539,6 +511,8 @@ public class SystemVideoPlayerActivity extends BaseActivity implements View.OnCl
                         updateTextViewWithTimeFormat(mCurrentTimeTv , currentPosition);
                         mPosSeekBar.setMax(totalPosition);
                         mPosSeekBar.setProgress(currentPosition);
+                        //设置系统时间
+                        mSystemTimeTv.setText(getSysteTime());
                         mHandler.removeMessages(UPDATE_UI);
                         mHandler.sendEmptyMessageDelayed(UPDATE_UI , 500);
                         break;
@@ -655,11 +629,11 @@ public class SystemVideoPlayerActivity extends BaseActivity implements View.OnCl
             //3.播放的时候本地文件中间有空白---下载做完成
             switch (extra){
                 case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
-                    UIToast.showBaseToast(SystemVideoPlayerActivity.this,"超时",R.style.AnimationToast);
+                    UIToast.showBaseToast(KmPlayerActivity.this,"超时",R.style.AnimationToast);
                     progressbarLayout.setVisibility(View.VISIBLE);
                     break;
                 case MediaPlayer.MEDIA_ERROR_IO:
-                    UIToast.showBaseToast(SystemVideoPlayerActivity.this,"IO",R.style.AnimationToast);
+                    UIToast.showBaseToast(KmPlayerActivity.this,"IO",R.style.AnimationToast);
                     progressbarLayout.setVisibility(View.VISIBLE);
                     break;
                 default:
@@ -715,28 +689,6 @@ public class SystemVideoPlayerActivity extends BaseActivity implements View.OnCl
         }
     }
 
-    /**
-     * 音量进度条
-     */
-    private class MyVolumeOnSeekBarChangeListener implements SeekBar.OnSeekBarChangeListener {
-
-        @Override
-        public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
-            //设置当前设备音量
-            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC , progress , 0);
-        }
-
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {
-
-        }
-
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {
-
-        }
-    }
-
     private class AnimationImp implements Animation.AnimationListener {
 
         @Override
@@ -754,15 +706,6 @@ public class SystemVideoPlayerActivity extends BaseActivity implements View.OnCl
 
     }
 
-//    @Override
-//    public void onBackPressed() {
-//        if (isFullScreen){
-//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-//        }else{
-//            super.onBackPressed();
-//        }
-//    }
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -771,6 +714,10 @@ public class SystemVideoPlayerActivity extends BaseActivity implements View.OnCl
     @Override
     protected void onDestroy() {
         mHandler.removeCallbacksAndMessages(null);
+        if (batteryReceiver != null){
+            unregisterReceiver(batteryReceiver);
+            batteryReceiver = null;
+        }
         super.onDestroy();
 
     }

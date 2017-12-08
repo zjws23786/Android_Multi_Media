@@ -4,17 +4,17 @@
     android:layout_height="match_parent">
 
     <RelativeLayout
-        android:id="@+id/videoLayout"
+        android:id="@+id/vitamio_videoLayout"
         android:layout_width="match_parent"
         android:layout_height="240dp">
 
-        <com.hua.media.widget.FullVideoView
-            android:id="@+id/video_view"
-            android:layout_width="wrap_content"
+        <com.hua.media.widget.VitamioVideoView
+            android:id="@+id/vitamio_video_view"
+            android:layout_width="match_parent"
             android:layout_height="240dp" />
 
         <LinearLayout
-            android:id="@+id/top_layout"
+            android:id="@+id/vitamio_top_layout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_alignParentTop="true"
@@ -27,7 +27,7 @@
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:singleLine="true"
-                android:text="视频播放"
+                android:text="万能播放器"
                 android:textColor="@android:color/white"
                 android:textSize="18sp" />
 
@@ -44,7 +44,7 @@
         <include layout="@layout/center_progress"/>
 
         <LinearLayout
-            android:id="@+id/bottom_layout"
+            android:id="@+id/vitamio_bottom_layout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:orientation="vertical"
@@ -52,7 +52,7 @@
             android:layout_alignParentBottom="true">
 
             <SeekBar
-                android:id="@+id/pos_seekBar"
+                android:id="@+id/vitamio_pos_seekBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:focusable="true"
@@ -67,21 +67,21 @@
                 android:layout_gravity="center_vertical">
 
                 <LinearLayout
-                    android:id="@+id/left_layout"
+                    android:id="@+id/vitamio_left_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
 
                     <ImageView
-                        android:id="@+id/pause_img"
+                        android:id="@+id/vitamio_pause_img"
                         android:layout_width="36dp"
                         android:layout_height="20dp"
                         android:src="@drawable/video_stop_style"
                         android:paddingLeft="16dp"/>
 
                     <TextView
-                        android:id="@+id/current_time_tv"
+                        android:id="@+id/vitamio_current_time_tv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="00:00"
@@ -98,7 +98,7 @@
                         android:layout_marginLeft="5dp"/>
 
                     <TextView
-                        android:id="@+id/total_time_tv"
+                        android:id="@+id/vitamio_total_time_tv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="00:00"
@@ -111,20 +111,20 @@
                 <LinearLayout
                     android:layout_width="10dp"
                     android:layout_height="match_parent"
-                    android:layout_toRightOf="@+id/left_layout"
+                    android:layout_toRightOf="@+id/vitamio_left_layout"
                     android:layout_alignParentRight="true"
                     android:gravity="center_vertical|right"
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:id="@+id/volume_img"
+                        android:id="@+id/vitamio_volume_img"
                         android:visibility="gone"
                         android:src="@drawable/last_video_df"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
                     <SeekBar
-                        android:id="@+id/volume_seek"
+                        android:id="@+id/vitamio_volume_seek"
                         android:layout_width="90dp"
                         android:layout_height="4dp"
                         android:indeterminate="false"
@@ -143,7 +143,7 @@
                         android:background="#1E1E1E"/>
 
                     <ImageView
-                        android:id="@+id/change_screen"
+                        android:id="@+id/vitamio_change_screen"
                         android:layout_marginLeft="16dp"
                         android:layout_marginRight="16dp"
                         android:layout_width="30dp"
@@ -158,7 +158,7 @@
     </RelativeLayout>
 
     <LinearLayout
-        android:id="@+id/progressbar_layout"
+        android:id="@+id/vitamio_progressbar_layout"
         android:layout_width="match_parent"
         android:layout_height="190dp"
         android:background="@drawable/center_progress_bg"
@@ -171,11 +171,20 @@
             layout="@layout/progressbar" />
 
         <TextView
-            android:id="@+id/buffer_net_speed_tv"
+            android:id="@+id/vitamio_buffer_net_speed_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:text="缓存中..."
+            android:textColor="#ffffff"
+            android:textSize="10dp" />
+
+        <TextView
+            android:id="@+id/load_rate_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="0%"
             android:textColor="#ffffff"
             android:textSize="10dp" />
     </LinearLayout>
@@ -183,7 +192,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/videoLayout"
+        android:layout_below="@id/vitamio_videoLayout"
         android:orientation="vertical">
 
         <TextView

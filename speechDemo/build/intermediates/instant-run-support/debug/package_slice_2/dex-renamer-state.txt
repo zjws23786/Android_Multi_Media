@@ -1,0 +1,4 @@
+#Thu Dec 07 11:54:53 GMT+08:00 2017
+base.0=D\:\\Android_Multi_Media\\speechDemo\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\5\\slice_2
+renamed.0=classes.dex
+file.0=D\:\\Android_Multi_Media\\speechDemo\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\5\\slice_2\\classes.dex

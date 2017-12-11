@@ -1,0 +1,16 @@
+#Thu Dec 07 11:54:52 GMT+08:00 2017
+renamed.4=classes4.dex
+renamed.3=classes.dex
+renamed.2=classes5.dex
+renamed.1=classes3.dex
+base.4=D\:\\Android_Multi_Media\\speechDemo\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\2\\Msc_c6c563dac29192caceee2256a9200540039ac286
+renamed.0=classes2.dex
+base.3=D\:\\Android_Multi_Media\\speechDemo\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\classes_ae3623eac7a651dea74097544eb086b263bf3121
+base.2=D\:\\Android_Multi_Media\\speechDemo\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\2\\Sunflower_075aeb29a05aca67978bb5a1f9e3035028ba7d9e
+base.1=D\:\\Android_Multi_Media\\speechDemo\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\support-annotations-23.4.0_ba38975a72144511cc0315b0a94dd8537cff1a8f
+base.0=D\:\\Android_Multi_Media\\speechDemo\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\internal_impl-23.4.0_eb0d56731eb132711cf55290f4e8d97bb76e8963
+file.4=D\:\\Android_Multi_Media\\speechDemo\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\2\\Msc_c6c563dac29192caceee2256a9200540039ac286\\classes.dex
+file.3=D\:\\Android_Multi_Media\\speechDemo\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\classes_ae3623eac7a651dea74097544eb086b263bf3121\\classes.dex
+file.2=D\:\\Android_Multi_Media\\speechDemo\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\2\\Sunflower_075aeb29a05aca67978bb5a1f9e3035028ba7d9e\\classes.dex
+file.1=D\:\\Android_Multi_Media\\speechDemo\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\support-annotations-23.4.0_ba38975a72144511cc0315b0a94dd8537cff1a8f\\classes.dex
+file.0=D\:\\Android_Multi_Media\\speechDemo\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\internal_impl-23.4.0_eb0d56731eb132711cf55290f4e8d97bb76e8963\\classes.dex

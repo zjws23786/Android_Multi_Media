@@ -1,0 +1,22 @@
+[
+    {
+        "merged": "D:\\Android_Multi_Media\\speechDemo\\build\\intermediates\\res\\merged\\debug\\drawable\\setting.png",
+        "source": "D:\\Android_Multi_Media\\speechDemo\\src\\main\\res\\drawable\\setting.png"
+    },
+    {
+        "merged": "D:\\Android_Multi_Media\\speechDemo\\build\\intermediates\\res\\merged\\debug\\drawable\\setting_p.png",
+        "source": "D:\\Android_Multi_Media\\speechDemo\\src\\main\\res\\drawable\\setting_p.png"
+    },
+    {
+        "merged": "D:\\Android_Multi_Media\\speechDemo\\build\\intermediates\\res\\merged\\debug\\drawable\\user.png",
+        "source": "D:\\Android_Multi_Media\\speechDemo\\src\\main\\res\\drawable\\user.png"
+    },
+    {
+        "merged": "D:\\Android_Multi_Media\\speechDemo\\build\\intermediates\\res\\merged\\debug\\drawable\\main_setting_btn_np.xml",
+        "source": "D:\\Android_Multi_Media\\speechDemo\\src\\main\\res\\drawable\\main_setting_btn_np.xml"
+    },
+    {
+        "merged": "D:\\Android_Multi_Media\\speechDemo\\build\\intermediates\\res\\merged\\debug\\drawable\\list_bg_color.xml",
+        "source": "D:\\Android_Multi_Media\\speechDemo\\src\\main\\res\\drawable\\list_bg_color.xml"
+    }
+]
